@@ -201,7 +201,7 @@ export default class TaroMiniPlugin {
         const promises: Promise<null>[] = []
         dependencies.forEach(dep => {
           promises.push(new Promise((resolve, reject) => {
-            compilation.addEntry(this.options.sourceDir, dep, dep.name, err => err ? reject(err) : resolve())
+            compilation.addEntry(this.options.sourceDir, dep, dep.name, err => err ? reject(err) : resolve(null))
           }))
         })
         await Promise.all(promises)
