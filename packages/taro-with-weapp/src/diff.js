@@ -35,6 +35,7 @@ function syncKeys (current, pre) {
       }
     }
   }
+  _syncKeys([current, pre]);
   while (stack.length > 0) { _syncKeys(stack.shift()) }
 }
 
@@ -96,6 +97,7 @@ function _diff (current, pre, path, result) {
       setResult(result, path, current)
     }
   }
+  __diff([current, pre, path, result]);
   while (stack.length > 0) { __diff(stack.shift()) }
 }
 
