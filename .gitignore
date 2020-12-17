@@ -11,3 +11,7 @@ website/build
 website/package.json
 packages/**/package-lock.json
 coverage
+packages/components
+packages/runtime
+packages/webpack-runner
+packages/with-weapp
