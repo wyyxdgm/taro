@@ -108,6 +108,16 @@ const reactifyWebComponent = WC => {
           return
         }
         if (typeof val === 'boolean') {
+          if (prop === 'hidden') {
+            if (val) {
+              if (this.ref.current.style.displayold === undefined) this.ref.current.style.displayold = this.ref.current.style.display
+              this.ref.current.style.display = 'none'
+            } else {
+              const displayold = this.ref.current.style.displayold
+              this.ref.current.style.display = displayold
+              this.ref.current.style.displayold = undefined
+            }
+          }
           if (val) {
             this.ref.current[prop] = true
             return this.ref.current.setAttribute(
