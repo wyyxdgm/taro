@@ -1,17 +1,108 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Component, h, Host } from '@stencil/core'
+import { Component, Prop, h, ComponentInterface, Host, State, Event, EventEmitter } from '@stencil/core'
+import classNames from 'classnames'
+
+import('intersection-observer')
+
+export type Mode =
+  | 'scaleToFill'
+  | 'aspectFit'
+  | 'aspectFill'
+  | 'widthFix'
+  | 'top'
+  | 'bottom'
+  | 'center'
+  | 'left'
+  | 'right'
+  | 'top left'
+  | 'top right'
+  | 'bottom left'
+  | 'bottom right'
 
 @Component({
-  tag: 'taro-cover-image-core'
+  tag: 'taro-cover-image-core',
+  styleUrl: './style/cover-image.scss'
 })
-export class CoverImage {
-  componentDidLoad () {
-    console.error('H5 暂不支持 CoverImage 组件！')
+export class CoverImage implements ComponentInterface {
+  @Prop() src: string
+  @Prop() mode: Mode = 'scaleToFill'
+  @Prop() lazyLoad = false
+  @State() aspectFillMode = 'width'
+
+  @Event({
+    eventName: 'load'
+  })
+  onLoad: EventEmitter
+
+  @Event({
+    eventName: 'error'
+  })
+  onError: EventEmitter
+
+  private imgRef: HTMLImageElement
+
+  componentDidLoad() {
+    if (!this.lazyLoad) return
+
+    const lazyImg = new IntersectionObserver(
+      entries => {
+        // 异步 api 关系
+        if (entries[entries.length - 1].isIntersecting) {
+          lazyImg.unobserve(this.imgRef)
+          this.imgRef.src = this.src
+        }
+      },
+      {
+        rootMargin: '300px 0px'
+      }
+    )
+
+    lazyImg.observe(this.imgRef)
   }
 
-  render () {
+  imageOnLoad() {
+    const { width, height, naturalWidth, naturalHeight } = this.imgRef
+
+    this.onLoad.emit({
+      width,
+      height
+    })
+
+    this.aspectFillMode = naturalWidth > naturalHeight ? 'width' : 'height'
+  }
+
+  imageOnError() {
+    this.onError.emit()
+  }
+
+  render() {
+    const { src, mode, lazyLoad, aspectFillMode, imageOnLoad, imageOnError } = this
+
+    const cls = classNames({
+      'taro-img__widthfix': mode === 'widthFix'
+    })
+    const imgCls = classNames(`taro-img__mode-${mode.toLowerCase().replace(/\s/g, '')}`, {
+      [`taro-img__mode-aspectfill--${aspectFillMode}`]: mode === 'aspectFill'
+    })
+
     return (
-      <Host />
+      <Host class={cls}>
+        {lazyLoad ? (
+          <img
+            ref={img => (this.imgRef = img!)}
+            class={imgCls}
+            onLoad={imageOnLoad.bind(this)}
+            onError={imageOnError.bind(this)}
+          />
+        ) : (
+          <img
+            ref={img => (this.imgRef = img!)}
+            class={imgCls}
+            src={src}
+            onLoad={imageOnLoad.bind(this)}
+            onError={imageOnError.bind(this)}
+          />
+        )}
+      </Host>
     )
   }
 }
