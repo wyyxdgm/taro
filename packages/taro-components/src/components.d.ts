@@ -62,7 +62,11 @@ export namespace Components {
     'name': any;
   }
   interface TaroCoverImageCore {}
-  interface TaroCoverViewCore {}
+  interface TaroCoverViewCore {
+    'hoverClass': string;
+    'hoverStartTime': number;
+    'hoverStayTime': number;
+  }
   interface TaroFormCore {}
   interface TaroIconCore {
     'color': string;
@@ -722,7 +726,12 @@ declare namespace LocalJSX {
     'onChange'?: (event: CustomEvent<any>) => void;
   }
   interface TaroCoverImageCore {}
-  interface TaroCoverViewCore {}
+  interface TaroCoverViewCore {
+    'hoverClass'?: string;
+    'hoverStartTime'?: number;
+    'hoverStayTime'?: number;
+    'onLongpress'?: (event: CustomEvent<any>) => void;
+  }
   interface TaroFormCore {
     'onSubmit'?: (event: CustomEvent<any>) => void;
   }
