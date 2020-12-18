@@ -8,14 +8,17 @@
 
 import { HTMLStencilElement, JSXBase } from './stencil.core';
 import {
+  Mode,
+} from './components/cover-view/cover-image';
+import {
   Type,
 } from './components/icon/icon';
 import {
-  Mode,
+  Mode as Mode1,
 } from './components/image/image';
 import {
   Fields,
-  Mode as Mode1,
+  Mode as Mode2,
 } from './components/picker/picker';
 import {
   Nodes,
@@ -61,7 +64,11 @@ export namespace Components {
   interface TaroCheckboxGroupCore {
     'name': any;
   }
-  interface TaroCoverImageCore {}
+  interface TaroCoverImageCore {
+    'lazyLoad': boolean;
+    'mode': Mode;
+    'src': string;
+  }
   interface TaroCoverViewCore {
     'hoverClass': string;
     'hoverStartTime': number;
@@ -724,7 +731,13 @@ declare namespace LocalJSX {
     'name'?: any;
     'onChange'?: (event: CustomEvent<any>) => void;
   }
-  interface TaroCoverImageCore {}
+  interface TaroCoverImageCore {
+    'lazyLoad'?: boolean;
+    'mode'?: Mode;
+    'onError'?: (event: CustomEvent<any>) => void;
+    'onLoad'?: (event: CustomEvent<any>) => void;
+    'src'?: string;
+  }
   interface TaroCoverViewCore {
     'hoverClass'?: string;
     'hoverStartTime'?: number;

@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 @Component({
   tag: 'taro-cover-view-core',
-  styleUrl: './cover-view.scss'
+  styleUrl: './style/cover-view.scss'
 })
 export class CoverView implements ComponentInterface {
   @Prop() hoverClass: string
