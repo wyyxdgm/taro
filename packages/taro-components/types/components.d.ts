@@ -150,6 +150,7 @@ export namespace Components {
   }
   interface TaroRadioCore {
     'checked': boolean;
+    'disabled': boolean;
     'id': string;
     'name': string;
     'value': string;
@@ -837,6 +838,7 @@ declare namespace LocalJSX {
   }
   interface TaroRadioCore {
     'checked'?: boolean;
+    'disabled'?: boolean;
     'id'?: string;
     'name'?: string;
     'onRadiochange'?: (event: CustomEvent<any>) => void;
