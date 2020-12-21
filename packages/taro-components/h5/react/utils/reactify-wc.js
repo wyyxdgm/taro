@@ -90,7 +90,7 @@ const reactifyWebComponent = WC => {
           }
 
           this.eventHandlers.push([event, fn])
-          return this.ref.current.addEventListener(event, fn)
+          return this.ref.current.addEventListener(event === 'tap' ? 'click' : event, fn)
         }
         // if (typeof val === 'function' && prop.match(/^on-[a-z]/)) {
         //   const event = prop.substr(3)
