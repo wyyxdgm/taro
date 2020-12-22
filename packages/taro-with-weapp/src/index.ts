@@ -246,8 +246,10 @@ export default function withWeapp (weappConf: WxOptions) {
             const key = keys[i]
             for (let j = 0; j < resultKeys.length; j++) {
               const resultKey = resultKeys[j]
+              // 暂不支持 '**'
+              // current为data时，可能取不到observers中监听的props，所以需要拼接所有数据源
               if (
-                resultKey.startsWith(key) ||
+                resultKey === key || resultKey.startsWith(`${key}.`) || resultKey.startsWith(`${key}[`) ||
                 (key.startsWith(resultKey) && key.endsWith(']'))
               ) {
                 args.push(safeGet(current, key))
@@ -255,10 +257,7 @@ export default function withWeapp (weappConf: WxOptions) {
             }
           }
           if (args.length) {
-            // 确保在properties更新之后触发
-            setTimeout(() => {
-              observers[observerKey].apply(this, args)
-            });
+            observers[observerKey].apply(this, args)
           }
         }
       }
@@ -307,7 +306,11 @@ export default function withWeapp (weappConf: WxOptions) {
       }
 
       public componentWillReceiveProps (nextProps: P) {
-        this.triggerObservers(nextProps, this.props)
+        const oldProps = clone(this.props);
+        // 确保在properties更新之后触发
+        setTimeout(() => {
+          this.triggerObservers(nextProps, oldProps)
+        });
         this._observeProps.forEach(({ name: key, observer }) => {
           const prop = this.props[key]
           const nextProp = nextProps[key]
