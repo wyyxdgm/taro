@@ -138,6 +138,10 @@ export default function withWeapp (weappConf: WxOptions) {
               break
           }
         }
+        // 小程序需要在created和attached之间，执行observers
+        this.willMounts.push(() => {
+          this.triggerObservers(this.props, {});
+        })
       }
 
       private initLifeCycles (lifecycleName: string, lifecycle: Function) {
@@ -251,7 +255,10 @@ export default function withWeapp (weappConf: WxOptions) {
             }
           }
           if (args.length) {
-            observers[observerKey].apply(this, args)
+            // 确保在properties更新之后触发
+            setTimeout(() => {
+              observers[observerKey].apply(this, args)
+            });
           }
         }
       }
