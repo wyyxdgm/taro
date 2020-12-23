@@ -68,6 +68,10 @@ export default function withWeapp (weappConf: WxOptions) {
 
       public observers?: Record<string, Function>
 
+      public callMethod: Function
+
+      public didReceivePops: Function[] = []
+
       constructor (props) {
         super(props)
         this.init(weappConf)
@@ -142,6 +146,10 @@ export default function withWeapp (weappConf: WxOptions) {
         this.willMounts.push(() => {
           this.triggerObservers(this.props, {});
         })
+        // wxs中可以调用callMethod使用page方法
+        this.callMethod = (method, args) => {
+          this[method](args);
+        }
       }
 
       private initLifeCycles (lifecycleName: string, lifecycle: Function) {
@@ -177,7 +185,7 @@ export default function withWeapp (weappConf: WxOptions) {
       }
 
       private safeExecute = (func?: Function, ...args: unknown[]) => {
-        if (isFunction(func)) func.apply(this, args)
+        if (isFunction(func)) return func.apply(this, args)
       }
 
       private executeLifeCycles (funcs: Function[], ...args: unknown[]) {
@@ -304,13 +312,20 @@ export default function withWeapp (weappConf: WxOptions) {
         this.safeExecute(super.componentDidShow)
         this.executeLifeCycles(this.didShows, getCurrentInstance().router || {})
       }
+      public shouldComponentUpdate (...args: any): boolean {
+        this.executeLifeCycles(this.didReceivePops, getCurrentInstance().router || {})
+        this.didReceivePops.length = 0;
+        if (isFunction(super.shouldComponentUpdate)) {
+          return super.shouldComponentUpdate.apply(this, args);
+        }
+        return true;
+      }
 
       public componentWillReceiveProps (nextProps: P) {
         const oldProps = clone(this.props);
         // 确保在properties更新之后触发
-        setTimeout(() => {
-          this.triggerObservers(nextProps, oldProps)
-        });
+        this.didReceivePops = this.didReceivePops || [];
+        this.didReceivePops.push(() => this.triggerObservers(nextProps, oldProps))
         this._observeProps.forEach(({ name: key, observer }) => {
           const prop = this.props[key]
           const nextProp = nextProps[key]
