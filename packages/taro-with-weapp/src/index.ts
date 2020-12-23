@@ -312,13 +312,12 @@ export default function withWeapp (weappConf: WxOptions) {
         this.safeExecute(super.componentDidShow)
         this.executeLifeCycles(this.didShows, getCurrentInstance().router || {})
       }
-      public shouldComponentUpdate (...args: any): boolean {
+      public componentDidUpdate (...args: any): void {
         this.executeLifeCycles(this.didReceivePops, getCurrentInstance().router || {})
         this.didReceivePops.length = 0;
-        if (isFunction(super.shouldComponentUpdate)) {
-          return super.shouldComponentUpdate.apply(this, args);
+        if (isFunction(super.componentDidUpdate)) {
+          return super.componentDidUpdate.apply(this, args);
         }
-        return true;
       }
 
       public componentWillReceiveProps (nextProps: P) {
