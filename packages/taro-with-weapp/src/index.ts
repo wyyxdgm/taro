@@ -70,7 +70,7 @@ export default function withWeapp (weappConf: WxOptions) {
 
       public callMethod: Function
 
-      public didReceivePops: Function[] = []
+      public didPopsUpdate: Function[] = []
 
       constructor (props) {
         super(props)
@@ -313,8 +313,8 @@ export default function withWeapp (weappConf: WxOptions) {
         this.executeLifeCycles(this.didShows, getCurrentInstance().router || {})
       }
       public componentDidUpdate (...args: any): void {
-        this.executeLifeCycles(this.didReceivePops, getCurrentInstance().router || {})
-        this.didReceivePops.length = 0;
+        this.executeLifeCycles(this.didPopsUpdate, getCurrentInstance().router || {})
+        this.didPopsUpdate.length = 0;
         if (isFunction(super.componentDidUpdate)) {
           return super.componentDidUpdate.apply(this, args);
         }
@@ -323,8 +323,8 @@ export default function withWeapp (weappConf: WxOptions) {
       public componentWillReceiveProps (nextProps: P) {
         const oldProps = clone(this.props);
         // 确保在properties更新之后触发
-        this.didReceivePops = this.didReceivePops || [];
-        this.didReceivePops.push(() => this.triggerObservers(nextProps, oldProps))
+        this.didPopsUpdate = this.didPopsUpdate || [];
+        this.didPopsUpdate.push(() => this.triggerObservers(nextProps, oldProps))
         this._observeProps.forEach(({ name: key, observer }) => {
           const prop = this.props[key]
           const nextProp = nextProps[key]
