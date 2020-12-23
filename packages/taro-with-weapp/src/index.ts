@@ -13,7 +13,7 @@ interface ObserverProperties {
 }
 
 interface ComponentClass<P = {}, S = {}> extends ComponentLifecycle<P, S> {
-  new (props: P): Component<P, S>
+  new(props: P): Component<P, S>
   externalClasses: Record<string, unknown>
   defaultProps?: Partial<P>
   _observeProps?: ObserverProperties[]
@@ -144,7 +144,8 @@ export default function withWeapp (weappConf: WxOptions) {
         }
         // 小程序需要在created和attached之间，执行observers
         this.willMounts.push(() => {
-          this.triggerObservers(this.props, {});
+          // console.log('didMounts triggerObservers', this.props)
+          this.triggerObservers(this.props, {}, true);
         })
         // wxs中可以调用callMethod使用page方法
         this.callMethod = (method, args) => {
@@ -231,7 +232,7 @@ export default function withWeapp (weappConf: WxOptions) {
         })
       }
 
-      private triggerObservers (current, prev) {
+      private triggerObservers (current, prev, byMounted?: boolean) {
         const observers = this.observers
         if (observers == null) {
           return
@@ -265,7 +266,19 @@ export default function withWeapp (weappConf: WxOptions) {
             }
           }
           if (args.length) {
-            observers[observerKey].apply(this, args)
+            // 首次mounted直接执行
+            if (byMounted) {
+              observers[observerKey].apply(this, args)
+            } else {
+              // 确保在properties更新之后触发
+              this.didPopsUpdate.push(() => {
+                observers[observerKey].apply(this, args)
+              })
+            }
+
+            // setTimeout(() => {
+            //   observers[observerKey].apply(this, args)
+            // });
           }
         }
       }
@@ -313,6 +326,7 @@ export default function withWeapp (weappConf: WxOptions) {
         this.executeLifeCycles(this.didShows, getCurrentInstance().router || {})
       }
       public componentDidUpdate (...args: any): void {
+        // console.log('trigger:componentDidUpdate', this.didPopsUpdate);
         this.executeLifeCycles(this.didPopsUpdate, getCurrentInstance().router || {})
         this.didPopsUpdate.length = 0;
         if (isFunction(super.componentDidUpdate)) {
@@ -321,10 +335,7 @@ export default function withWeapp (weappConf: WxOptions) {
       }
 
       public componentWillReceiveProps (nextProps: P) {
-        const oldProps = clone(this.props);
-        // 确保在properties更新之后触发
-        this.didPopsUpdate = this.didPopsUpdate || [];
-        this.didPopsUpdate.push(() => this.triggerObservers(nextProps, oldProps))
+        this.triggerObservers(nextProps, this.props)
         this._observeProps.forEach(({ name: key, observer }) => {
           const prop = this.props[key]
           const nextProp = nextProps[key]
