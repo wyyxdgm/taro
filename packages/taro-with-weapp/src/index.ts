@@ -205,6 +205,43 @@ export default function withWeapp (weappConf: WxOptions) {
           console.error('page 下没有 selectComponent 方法')
         }
       }
+      /**
+       * 清除animate后遗留的样式属性
+       * @param selector 选择器（同 SelectorQuery.select 的选择器格式）
+       * @param options 需要清除的属性，不填写则全部清除
+       * @param callback 清除完成后的回调函数
+       */
+      public clearAnimation = (selector: String, options: Object | Function, callback?: Function) => {
+        const page = getCurrentInstance().page
+        if (page && page.clearAnimation) {
+          page.clearAnimation(...args)
+        } else {
+          // tslint:disable-next-line: no-console
+          console.error('page 下没有 clearAnimation 方法')
+          if (typeof options === 'function') {
+            // todo clear options
+            options()
+          }
+          else {
+            // todo clear options
+            if (typeof callback === 'function') {
+              callback();
+            }
+          }
+        }
+      }
+
+      public animate = (selector: String, keyframes: Array, duration: Number, callback: Function) => {
+        const page = getCurrentInstance().page
+        if (page && page.animate) {
+          page.animate(...args)
+        } else {
+          // tslint:disable-next-line: no-console
+          console.error('page 下没有 animate 方法')
+          // todo animate
+          if (typeof callback === 'function') { callback(); }
+        }
+      }
 
       public getRelationNodes = (...args: unknown[]) => {
         const page = getCurrentInstance().page
