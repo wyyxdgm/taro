@@ -214,7 +214,7 @@ export default function withWeapp (weappConf: WxOptions) {
       public clearAnimation = (selector: String, options: Object | Function, callback?: Function) => {
         const page = getCurrentInstance().page
         if (page && page.clearAnimation) {
-          page.clearAnimation(...args)
+          page.clearAnimation(selector, options, callback)
         } else {
           // tslint:disable-next-line: no-console
           console.error('page 下没有 clearAnimation 方法')
@@ -231,10 +231,10 @@ export default function withWeapp (weappConf: WxOptions) {
         }
       }
 
-      public animate = (selector: String, keyframes: Array, duration: Number, callback: Function) => {
+      public animate = (selector: String, keyframes: Object[], duration: Number, callback: Function) => {
         const page = getCurrentInstance().page
         if (page && page.animate) {
-          page.animate(...args)
+          page.animate(selector, keyframes, duration, callback)
         } else {
           // tslint:disable-next-line: no-console
           console.error('page 下没有 animate 方法')
