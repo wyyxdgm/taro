@@ -12,8 +12,21 @@ export function diff (current, pre) {
 
 function syncKeys (current, pre) {
   const stack = [];
+  const beenSet = new Set();
+  function been (current) {
+    const rootCurrentType = type(current)
+    if (rootCurrentType == OBJECTTYPE || rootCurrentType == ARRAYTYPE || rootCurrentType == FUNCTIONTYPE) {// 引用类型
+      if (beenSet.has(current)) {
+        return true;
+      } else {
+        beenSet.add(current);
+        return false;
+      }
+    }
+    return false;
+  }
   function _syncKeys ([current, pre]) {
-    if (current === pre) return
+    if (current === pre || been(current)) return
     const rootCurrentType = type(current)
     const rootPreType = type(pre)
     if (rootCurrentType == OBJECTTYPE && rootPreType == OBJECTTYPE) {
@@ -21,7 +34,7 @@ function syncKeys (current, pre) {
       for (let key in pre) {
         const currentValue = current[key]
         if (currentValue === undefined) {
-          current[key] = null
+          // current[key] = null
         } else {
           stack.push([currentValue, pre[key]])
         }
@@ -41,8 +54,21 @@ function syncKeys (current, pre) {
 
 function _diff (current, pre, path, result) {
   const stack = [];
+  const beenSet = new Set();
+  function been (current) {
+    const rootCurrentType = type(current)
+    if (rootCurrentType == OBJECTTYPE || rootCurrentType == ARRAYTYPE || rootCurrentType == FUNCTIONTYPE) {// 引用类型
+      if (beenSet.has(current)) {
+        return true;
+      } else {
+        beenSet.add(current);
+        return false;
+      }
+    }
+    return false;
+  }
   function __diff ([current, pre, path, result]) {
-    if (current === pre) return
+    if (current === pre || been(current)) return
     const rootCurrentType = type(current)
     const rootPreType = type(pre)
     if (rootCurrentType == OBJECTTYPE) {
