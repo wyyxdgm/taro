@@ -3,10 +3,10 @@ import { Component, Prop, h, ComponentInterface, Host, Listen, State, Event, Eve
 import classNames from 'classnames'
 
 @Component({
-  tag: 'taro-moveable-area-core',
+  tag: 'taro-movable-area-core',
   styleUrl: './style/index.scss'
 })
-export class MoveableArea implements ComponentInterface {
+export class MovableArea implements ComponentInterface {
   @Prop() hoverClass: string
   @Prop() hoverStartTime = 50
   @Prop() hoverStayTime = 400
