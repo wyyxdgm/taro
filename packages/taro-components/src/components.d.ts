@@ -99,8 +99,16 @@ export namespace Components {
   interface TaroLabelCore {
     'for': string;
   }
-  interface TaroMoveableAreaCore {}
-  interface TaroMoveableViewCore {}
+  interface TaroMoveableAreaCore {
+    'hoverClass': string;
+    'hoverStartTime': number;
+    'hoverStayTime': number;
+  }
+  interface TaroMoveableViewCore {
+    'hoverClass': string;
+    'hoverStartTime': number;
+    'hoverStayTime': number;
+  }
   interface TaroNavigatorCore {
     'delta': number;
     'hoverClass': string;
@@ -780,8 +788,18 @@ declare namespace LocalJSX {
   interface TaroLabelCore {
     'for'?: string;
   }
-  interface TaroMoveableAreaCore {}
-  interface TaroMoveableViewCore {}
+  interface TaroMoveableAreaCore {
+    'hoverClass'?: string;
+    'hoverStartTime'?: number;
+    'hoverStayTime'?: number;
+    'onLongpress'?: (event: CustomEvent<any>) => void;
+  }
+  interface TaroMoveableViewCore {
+    'hoverClass'?: string;
+    'hoverStartTime'?: number;
+    'hoverStayTime'?: number;
+    'onLongpress'?: (event: CustomEvent<any>) => void;
+  }
   interface TaroNavigatorCore {
     'delta'?: number;
     'hoverClass'?: string;
