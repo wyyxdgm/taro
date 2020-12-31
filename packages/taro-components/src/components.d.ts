@@ -50,7 +50,9 @@ export namespace Components {
     'size': string;
     'type': string;
   }
-  interface TaroCameraCore {}
+  interface TaroCameraCore {
+    'frameSize': string;
+  }
   interface TaroCanvasCore {
     'canvasId': string;
   }
@@ -723,7 +725,10 @@ declare namespace LocalJSX {
     'size'?: string;
     'type'?: string;
   }
-  interface TaroCameraCore {}
+  interface TaroCameraCore {
+    'frameSize'?: string;
+    'onInitdone'?: (event: CustomEvent<any>) => void;
+  }
   interface TaroCanvasCore {
     'canvasId'?: string;
     'onLongtap'?: (event: CustomEvent<any>) => void;

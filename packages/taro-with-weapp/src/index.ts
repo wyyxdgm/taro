@@ -130,6 +130,12 @@ export default function withWeapp (weappConf: WxOptions) {
                 this.initLifeCycles(key, lifecycle)
               }
               break
+            case 'pageLifetimes':
+              for (const key in confValue) {
+                const lifecycle = confValue[key]
+                this.initLifeCycles(key, lifecycle)
+              }
+              break
             default:
               if (lifecycles.has(confKey)) {
                 const lifecycle = options[confKey]
@@ -137,7 +143,11 @@ export default function withWeapp (weappConf: WxOptions) {
               } else if (isFunction(confValue)) {
                 this[confKey] = bind(confValue, this)
               } else {
-                this[confKey] = confValue
+                try {
+                  this[confKey] = confValue
+                } catch (e) {
+                  console.log(e, confKey, confValue);
+                }
               }
               break
           }
@@ -180,8 +190,17 @@ export default function withWeapp (weappConf: WxOptions) {
         }
 
         // mixins 不会覆盖已经设置的生命周期，加入到 this 是为了形如 this.created() 的调用
+        if (lifecycleName === 'show') {
+          lifecycleName = 'onShow';
+        } if (lifecycleName === 'hide') {
+          lifecycleName = 'onHide';
+        }
         if (!isFunction(this[lifecycleName])) {
-          this[lifecycleName] = lifecycle
+          try {
+            this[lifecycleName] = lifecycle
+          } catch (e) {
+            console.log(e)
+          }
         }
       }
 
