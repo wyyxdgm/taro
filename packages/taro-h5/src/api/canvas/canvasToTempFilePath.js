@@ -21,13 +21,13 @@ import { findDOM } from '../utils/index'
  * @param {Param} object 参数
  * @todo 暂未支持尺寸相关功能
  */
-const canvasToTempFilePath = ({ canvasId, fileType, quality, success, fail, complete }, inst) => {
+const canvasToTempFilePath = ({ canvasId, canvas, fileType, quality, success, fail, complete }, inst) => {
   /** @type {HTMLCanvasElement} */
-  const canvas = findDOM(inst).querySelector(`canvas[canvas-id=${canvasId}]`)
+  const localCanvas = canvas || findDOM(inst).querySelector(`canvas[canvas-id=${canvasId}]`)
 
   try {
     // /** @type {CanvasRenderingContext2D} */
-    const dataURL = canvas.toDataURL(`image/${fileType || 'png'}`, quality)
+    const dataURL = localCanvas.toDataURL(`image/${fileType || 'png'}`, quality)
     const res = {
       tempFilePath: dataURL,
       res: 'canvasToTempFilePath:ok'
