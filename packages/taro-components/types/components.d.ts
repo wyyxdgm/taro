@@ -76,6 +76,7 @@ export namespace Components {
     'hoverStartTime': number;
     'hoverStayTime': number;
   }
+  interface TaroCustomWrapperCore {}
   interface TaroFormCore {}
   interface TaroIconCore {
     'color': string;
@@ -469,6 +470,12 @@ declare global {
     new (): HTMLTaroCoverViewCoreElement;
   };
 
+  interface HTMLTaroCustomWrapperCoreElement extends Components.TaroCustomWrapperCore, HTMLStencilElement {}
+  var HTMLTaroCustomWrapperCoreElement: {
+    prototype: HTMLTaroCustomWrapperCoreElement;
+    new (): HTMLTaroCustomWrapperCoreElement;
+  };
+
   interface HTMLTaroFormCoreElement extends Components.TaroFormCore, HTMLStencilElement {}
   var HTMLTaroFormCoreElement: {
     prototype: HTMLTaroFormCoreElement;
@@ -664,6 +671,7 @@ declare global {
     'taro-checkbox-group-core': HTMLTaroCheckboxGroupCoreElement;
     'taro-cover-image-core': HTMLTaroCoverImageCoreElement;
     'taro-cover-view-core': HTMLTaroCoverViewCoreElement;
+    'taro-custom-wrapper-core': HTMLTaroCustomWrapperCoreElement;
     'taro-form-core': HTMLTaroFormCoreElement;
     'taro-icon-core': HTMLTaroIconCoreElement;
     'taro-image-core': HTMLTaroImageCoreElement;
@@ -758,6 +766,7 @@ declare namespace LocalJSX {
     'hoverStayTime'?: number;
     'onLongpress'?: (event: CustomEvent<any>) => void;
   }
+  interface TaroCustomWrapperCore {}
   interface TaroFormCore {
     'onSubmit'?: (event: CustomEvent<any>) => void;
   }
@@ -1118,6 +1127,7 @@ declare namespace LocalJSX {
     'taro-checkbox-group-core': TaroCheckboxGroupCore;
     'taro-cover-image-core': TaroCoverImageCore;
     'taro-cover-view-core': TaroCoverViewCore;
+    'taro-custom-wrapper-core': TaroCustomWrapperCore;
     'taro-form-core': TaroFormCore;
     'taro-icon-core': TaroIconCore;
     'taro-image-core': TaroImageCore;
@@ -1167,6 +1177,7 @@ declare module "@stencil/core" {
       'taro-checkbox-group-core': LocalJSX.TaroCheckboxGroupCore & JSXBase.HTMLAttributes<HTMLTaroCheckboxGroupCoreElement>;
       'taro-cover-image-core': LocalJSX.TaroCoverImageCore & JSXBase.HTMLAttributes<HTMLTaroCoverImageCoreElement>;
       'taro-cover-view-core': LocalJSX.TaroCoverViewCore & JSXBase.HTMLAttributes<HTMLTaroCoverViewCoreElement>;
+      'taro-custom-wrapper-core': LocalJSX.TaroCustomWrapperCore & JSXBase.HTMLAttributes<HTMLTaroCustomWrapperCoreElement>;
       'taro-form-core': LocalJSX.TaroFormCore & JSXBase.HTMLAttributes<HTMLTaroFormCoreElement>;
       'taro-icon-core': LocalJSX.TaroIconCore & JSXBase.HTMLAttributes<HTMLTaroIconCoreElement>;
       'taro-image-core': LocalJSX.TaroImageCore & JSXBase.HTMLAttributes<HTMLTaroImageCoreElement>;
