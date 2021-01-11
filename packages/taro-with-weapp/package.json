@@ -24,6 +24,7 @@
   "dependencies": {
     "@tarojs/runtime": "3.0.22",
     "@tarojs/taro": "3.0.22",
+    "animejs": "^3.2.1",
     "lodash": "^4.17.11"
   }
 }

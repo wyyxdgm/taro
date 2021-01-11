@@ -4,6 +4,8 @@ import { lifecycles, lifecycleMap, TaroLifeCycles } from './lifecycle'
 import { bind, proxy, isEqual, safeGet, safeSet } from './utils'
 import { diff } from './diff'
 import { clone } from './clone'
+import anime from 'animejs/lib/anime.es.js'
+import _ from 'lodash'
 
 type Observer = (newProps, oldProps, changePath: string) => void
 
@@ -66,11 +68,19 @@ export default function withWeapp (weappConf: WxOptions) {
 
       private willUnmounts: Function[] = []
 
+      private animations: Record<string, any> = {}
+
       public observers?: Record<string, Function>
 
       public callMethod: Function
 
       public didPopsUpdate: Function[] = []
+
+      private animationKeys = {
+        scale: ['scaleX', 'scaleY', 'scaleZ'],
+        scale3d: ['scaleX', 'scaleY', 'scaleZ'],
+        translate3d: ['translateX', 'translateY', 'translateZ']
+      }
 
       constructor (props) {
         super(props)
@@ -230,33 +240,136 @@ export default function withWeapp (weappConf: WxOptions) {
        * @param options 需要清除的属性，不填写则全部清除
        * @param callback 清除完成后的回调函数
        */
-      public clearAnimation = (selector: String, options: Object | Function, callback?: Function) => {
-        const page = getCurrentInstance().page
-        if (page && page.clearAnimation) {
-          page.clearAnimation(selector, options, callback)
-        } else {
-          // tslint:disable-next-line: no-console
-          console.error('page 下没有 clearAnimation 方法')
-          if (typeof options === 'function') {
-            // todo clear options
-            options()
-          }
-          else {
-            // todo clear options
-            if (typeof callback === 'function') {
-              callback();
+      public clearAnimation = (selector: string, options: Function | Object, callback: Function | undefined) => {
+        // tslint:disable-next-line: no-console
+        if (typeof options === 'function') {
+          callback = options;
+          options = {};
+        }
+        console.log('ani.clearAnimation', selector, 'options=', options, 'callback=', callback, 'this.animations[selector]', this.animations[selector])
+        if (!this.animations || !this.animations[selector]) return;
+        if (!_.isEmpty(options)) {
+          let keys = Object.keys(options);
+          let propSet = {};
+          let savedStyle = this.animations[selector];
+          for (let idx in keys) {
+            let key = keys[idx];
+            if (this.animationKeys[key]) {
+              for (let subKeyIdx in this.animationKeys[key]) {
+                let subKey = this.animationKeys[key][subKeyIdx];
+                if (savedStyle[subKey] !== undefined) {
+                  propSet[subKey] = savedStyle[subKey];
+                }
+              }
+            } else {
+              if (savedStyle[key] !== undefined) {
+                propSet[key] = savedStyle[key]
+              }
             }
           }
+          console.log('ani.set+', selector, propSet)
+          anime.set(document.querySelector(selector), propSet);
+          // for (let key in propSet) {
+          //   delete savedStyle[key];
+          // }
+        } else {
+          console.log('ani.set+', selector, this.animations[selector])
+          anime.set(document.querySelector(selector), this.animations[selector]);
+          // delete this.animations[selector];
+        }
+        if (typeof callback === 'function') {
+          callback();
         }
       }
-
-      public animate = (selector: String, keyframes: Object[], duration: Number, callback: Function) => {
+      private _tranEase (ease) {
+        switch (ease) {
+          case 'ease-out':
+            return 'easeOutCubic';
+            break;
+          case 'ease-in':
+            return 'easeInCubic';
+            break;
+          case undefined:
+          default:
+            return 'easeInOutCubic';
+            break;
+        }
+      }
+      private saveAnimateKey = (targets: Element | null, selector: string, key: string | number) => {
+        let value = anime.get(targets, key);
+        console.log('ani.save+', selector, key, '=', value)
+        if (!this.animations[selector]) this.animations[selector] = {};
+        if (this.animations[selector][key] === undefined) this.animations[selector][key] = /\-?[0-9]/.test(value) ? parseFloat(value) : value;
+      }
+      /**
+       * animate动画
+       * @param selector 选择器（同 SelectorQuery.select 的选择器格式）
+       * @param keyframes 关键帧信息
+       * @param duration 动画持续时长（毫秒为单位）
+       * @param callback 动画完成后的回调函数
+       */
+      public animate = (selector: string, keyframes: Object[], duration: number, callback: Function) => {
         const page = getCurrentInstance().page
         if (page && page.animate) {
           page.animate(selector, keyframes, duration, callback)
         } else {
-          // tslint:disable-next-line: no-console
-          console.error('page 下没有 animate 方法')
+          if (document && document.querySelector) {
+            // const supportedProps = ['opacity', 'zoom', 'ease', 'scale', 'scale3d', 'translate3d']
+            let targets = document.querySelector(selector);
+            if (!targets) return console.error(`节点不存在: ${selector}`);
+            console.log('ani.animate selector=', selector, 'keyframes=', keyframes, 'duration=', duration)
+            let animeConfig = {
+              targets,
+            };
+            const _animeConfig = {};
+            keyframes.map((keyframe, idx) => {
+              if (!(keyframe['offset'] >= 0 && keyframe['offset'] <= 1)) keyframe['offset'] = keyframes.length === 1 ? 1 : idx / (keyframes.length - 1);
+            })
+            for (let keyframeIdx in keyframes) {
+              let keyframe = keyframes[keyframeIdx];
+              for (let key in keyframe) {
+                switch (key) {
+                  case 'offset':
+                    break;
+                  case 'opacity':
+                  case 'zoom':
+                    if (!_animeConfig[key]) _animeConfig[key] = {};
+                    _animeConfig[key][keyframe['offset']] = { value: keyframe[key], easing: this._tranEase(keyframe['ease']), duration: duration * keyframe['offset'] }
+                  case 'scale':
+                  case 'scale3d':
+                    for (let index in keyframe[key]) { // [1,2,3?]
+                      let _key = this.animationKeys.scale[index];
+                      if (!_animeConfig[_key]) _animeConfig[_key] = {};
+                      _animeConfig[_key][keyframe['offset']] = { value: keyframe[key][index], easing: this._tranEase(keyframe['ease']), duration: duration * keyframe['offset'] }
+                    }
+                    break;
+                  case 'translate3d':
+                    for (let index in keyframe[key]) { // [1,2,3?]
+                      let _key = this.animationKeys.translate3d[index];
+                      if (!_animeConfig[_key]) _animeConfig[_key] = {};
+                      _animeConfig[_key][keyframe['offset']] = { value: keyframe[key][index], easing: this._tranEase(keyframe['ease']), duration: duration * keyframe['offset'] }
+                    }
+                    break;
+                  case 'ease':
+                    break;
+                  default:
+                    return console.error(`暂不支持动画:${key}，请先新增动画支持`);
+                    break;
+                }
+              }
+            }
+            for (let key in _animeConfig) {
+              animeConfig[key] = Object.values(_animeConfig[key])
+              this.saveAnimateKey(targets, selector, key);
+            }
+            // console.log('ani.config', animeConfig)
+            let ani = anime(animeConfig);
+            ani.finished.then(() => {
+              if (typeof callback === 'function') { callback(); }
+            });
+            return ani;
+          }
+          console.error('当前平台不支持animate');
           // todo animate
           if (typeof callback === 'function') { callback(); }
         }

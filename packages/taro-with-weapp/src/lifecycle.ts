@@ -11,7 +11,7 @@ export enum TaroLifeCycles {
 }
 
 export const lifecycleMap: LifecycleMap = {
-  [TaroLifeCycles.WillMount]: ['created', 'onLoad', 'onLanuch'],
+  [TaroLifeCycles.WillMount]: ['created', 'onLanuch'], // onLoad会在别的地方调用
   [TaroLifeCycles.DidMount]: ['onReady', 'ready', 'attached'],
   [TaroLifeCycles.DidShow]: ['onShow', 'show'],
   [TaroLifeCycles.DidHide]: ['onHide', 'hide'],
