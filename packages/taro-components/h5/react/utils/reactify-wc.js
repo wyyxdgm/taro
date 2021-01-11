@@ -40,7 +40,12 @@ const reactifyWebComponent = WC => {
 
     update (prevProps) {
       this.clearEventHandlers()
-      Object.entries(this.props).forEach(([prop, val]) => {
+      // hidden比style具有更高的优先级
+      Object.entries(this.props).sort(([prop], [prop2]) => {
+        if (prop === 'hidden') return 1
+        else if (prop2 === 'hidden') return -1
+        else return 0
+      }).forEach(([prop, val]) => {
         if (!this.ref.current) return
         if (prop === 'children') {
           return
