@@ -76,6 +76,8 @@ export default function withWeapp (weappConf: WxOptions) {
 
       public didPopsUpdate: Function[] = []
 
+      public rootNode: Element | null = null;
+
       private animationKeys = {
         scale: ['scaleX', 'scaleY', 'scaleZ'],
         scale3d: ['scaleX', 'scaleY', 'scaleZ'],
@@ -156,7 +158,7 @@ export default function withWeapp (weappConf: WxOptions) {
                 try {
                   this[confKey] = confValue
                 } catch (e) {
-                  console.log(e, confKey, confValue);
+                  console.error(e, confKey, confValue);
                 }
               }
               break
@@ -209,7 +211,7 @@ export default function withWeapp (weappConf: WxOptions) {
           try {
             this[lifecycleName] = lifecycle
           } catch (e) {
-            console.log(e)
+            console.error(e)
           }
         }
       }
@@ -246,7 +248,7 @@ export default function withWeapp (weappConf: WxOptions) {
           callback = options;
           options = {};
         }
-        console.log('ani.clearAnimation', selector, 'options=', options, 'callback=', callback, 'this.animations[selector]', this.animations[selector])
+        // console.log('ani.clearAnimation', selector, 'options=', options, 'callback=', callback, 'this.animations[selector]', this.animations[selector])
         if (!this.animations || !this.animations[selector]) return;
         if (!_.isEmpty(options)) {
           let keys = Object.keys(options);
@@ -267,14 +269,14 @@ export default function withWeapp (weappConf: WxOptions) {
               }
             }
           }
-          console.log('ani.set+', selector, propSet)
-          anime.set(document.querySelector(selector), propSet);
+          // console.log('ani.set+', selector, propSet)
+          anime.set(this.querySelector(selector), propSet);
           // for (let key in propSet) {
           //   delete savedStyle[key];
           // }
         } else {
-          console.log('ani.set+', selector, this.animations[selector])
-          anime.set(document.querySelector(selector), this.animations[selector]);
+          // console.log('ani.set+', selector, this.animations[selector])
+          anime.set(this.querySelector(selector), this.animations[selector]);
           // delete this.animations[selector];
         }
         if (typeof callback === 'function') {
@@ -295,9 +297,18 @@ export default function withWeapp (weappConf: WxOptions) {
             break;
         }
       }
+      public getPageId = () => {
+        const path = getCurrentInstance().page.path
+        return path;
+      }
+      public querySelector = (selector: string) => {
+        if (!this.rootNode) this.rootNode = document.querySelector(`[id='${this.getPageId()}']`)
+        if (!this.rootNode) return null;
+        return this.rootNode.querySelector(selector);
+      }
       private saveAnimateKey = (targets: Element | null, selector: string, key: string | number) => {
         let value = anime.get(targets, key);
-        console.log('ani.save+', selector, key, '=', value)
+        // console.log('ani.save+', selector, key, '=', value)
         if (!this.animations[selector]) this.animations[selector] = {};
         if (this.animations[selector][key] === undefined) this.animations[selector][key] = /\-?[0-9]/.test(value) ? parseFloat(value) : value;
       }
@@ -313,11 +324,12 @@ export default function withWeapp (weappConf: WxOptions) {
         if (page && page.animate) {
           page.animate(selector, keyframes, duration, callback)
         } else {
-          if (document && document.querySelector) {
+          console.log('page', page)
+          if (document && this.querySelector) {
             // const supportedProps = ['opacity', 'zoom', 'ease', 'scale', 'scale3d', 'translate3d']
-            let targets = document.querySelector(selector);
+            let targets = this.querySelector(selector);
             if (!targets) return console.error(`节点不存在: ${selector}`);
-            console.log('ani.animate selector=', selector, 'keyframes=', keyframes, 'duration=', duration)
+            // console.log('ani.animate selector=', selector, 'keyframes=', keyframes, 'duration=', duration)
             let animeConfig = {
               targets,
             };
