@@ -115,12 +115,16 @@ const reactifyWebComponent = WC => {
         if (typeof val === 'boolean') {
           if (prop === 'hidden') {
             if (val) {
-              if (this.ref.current._displayold === undefined) this.ref.current._displayold = this.ref.current.style.display || 'unset'
+              if (this.ref.current.s === undefined) this.ref.current._displayold = this.ref.current.style.display
               this.ref.current.style.display = 'none'
             } else {
               const displayold = this.ref.current._displayold
-              this.ref.current.style.display = displayold
-              this.ref.current._displayold = undefined
+              if (displayold) {
+                this.ref.current.style.display = displayold
+                this.ref.current._displayold = undefined
+              } else {
+                delete this.ref.current.style.display
+              }
             }
           }
           if (val) {
