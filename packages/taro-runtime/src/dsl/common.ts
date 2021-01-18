@@ -162,6 +162,10 @@ export function createPageConfig (component: any, pageName?: string, data?: Reco
       this.config = pageConfig || {}
       const path = getPath(id, this.options)
 
+      if (Current.page && Current.page['childShows']) {
+        Current.page['childShows'].forEach(fn => fn());
+      }
+
       Current.router = {
         params: this.options,
         path: addLeadingSlash(this.route || this.__route__),
@@ -177,6 +181,9 @@ export function createPageConfig (component: any, pageName?: string, data?: Reco
       safeExecute(path, 'onShow')
     },
     onHide () {
+      if (Current.page && Current.page['childHides']) {
+        Current.page['childHides'].forEach(fn => fn());
+      }
       Current.page = null
       Current.router = null
       const path = getPath(id, this.options)
@@ -227,8 +234,8 @@ export function createPageConfig (component: any, pageName?: string, data?: Reco
 
   // onShareAppMessage 和 onShareTimeline 一样，会影响小程序右上方按钮的选项，因此不能默认注册。
   if (component.onShareAppMessage ||
-      component.prototype?.onShareAppMessage ||
-      component.enableShareAppMessage) {
+    component.prototype?.onShareAppMessage ||
+    component.enableShareAppMessage) {
     config.onShareAppMessage = function (options) {
       const target = options.target
       if (target != null) {
@@ -243,8 +250,8 @@ export function createPageConfig (component: any, pageName?: string, data?: Reco
     }
   }
   if (component.onShareTimeline ||
-      component.prototype?.onShareTimeline ||
-      component.enableShareTimeline) {
+    component.prototype?.onShareTimeline ||
+    component.enableShareTimeline) {
     config.onShareTimeline = function () {
       const path = getPath(id, this.options)
       return safeExecute(path, 'onShareTimeline')

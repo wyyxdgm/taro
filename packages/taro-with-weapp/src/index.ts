@@ -175,6 +175,24 @@ export default function withWeapp (weappConf: WxOptions) {
         }
       }
 
+      public addTriggerOnShow (lifecycle) {
+        this.didShows.unshift(lifecycle)
+      }
+
+      public removeTriggerOnShow (lifecycle) {
+        let index = this.didShows.findIndex(fn => fn === lifecycle)
+        this.didShows.splice(index, 1)
+      }
+
+      public addTriggerOnHide (lifecycle) {
+        this.didHides.unshift(lifecycle)
+      }
+
+      public removeTriggerOnHide (lifecycle) {
+        let index = this.didHides.findIndex(fn => fn === lifecycle)
+        this.didHides.splice(index, 1)
+      }
+
       private initLifeCycles (lifecycleName: string, lifecycle: Function) {
         for (const lifecycleKey in lifecycleMap) {
           const cycleNames = lifecycleMap[lifecycleKey]
@@ -488,6 +506,19 @@ export default function withWeapp (weappConf: WxOptions) {
       }
 
       public componentDidMount () {
+        // console.log('componentDidMount@page=', this.getPageId(), this.data)
+        // 非页面的组件
+        if (!this.props['tid']) {
+          const page = getCurrentInstance().page;
+          page.childShows = page.childShows ?? [];
+          page.childShows.push(() => this.componentDidShow())
+          page.childHides = page.childHides ?? [];
+          page.childHides.push(() => this.componentDidHide())
+          // safeExecute(this.getPageId(), 'addTriggerOnShow', () => this.componentDidShow())
+          // safeExecute(this.getPageId(), 'addTriggerOnHide', () => this.componentDidHide())
+          // getCurrentInstance().page.addTriggerOnShow(() => this.componentDidShow())
+          // getCurrentInstance().page.addTriggerOnHide(() => this.componentDidHide())
+        }
         this.safeExecute(super.componentDidMount)
         this.executeLifeCycles(this.didMounts)
       }
@@ -503,6 +534,10 @@ export default function withWeapp (weappConf: WxOptions) {
       }
 
       public componentDidShow () {
+        if (this.props['tid']) {
+          const page = getCurrentInstance().page;
+          // console.log('page.componentDidShow', page.childShows);
+        }
         this.safeExecute(super.componentDidShow)
         this.executeLifeCycles(this.didShows, getCurrentInstance().router || {})
       }
