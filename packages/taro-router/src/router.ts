@@ -74,6 +74,8 @@ function pageOnReady (pageEl: Element | null, page: PageInstance, onLoad = true)
 function loadPage (page: PageInstance | null, pageConfig: Route | undefined) {
   if (page !== null) {
     let pageEl = document.getElementById(page.path!)
+    // 小程序在onLoad之前已经能获取到页面栈
+    stacks.push(page)
     if (pageEl) {
       pageEl.style.display = 'block'
     } else {
@@ -86,7 +88,6 @@ function loadPage (page: PageInstance | null, pageConfig: Route | undefined) {
     }
     page.onShow!()
     bindPageScroll(page, pageConfig || {})
-    stacks.push(page)
   }
 }
 
