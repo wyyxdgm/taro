@@ -123,7 +123,7 @@ const reactifyWebComponent = WC => {
                 this.ref.current.style.display = displayold
                 this.ref.current._displayold = undefined
               } else {
-                delete this.ref.current.style.display
+                this.ref.current.style.display = ''
               }
             }
           }
